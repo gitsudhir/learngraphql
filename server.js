@@ -2,6 +2,7 @@ var express = require('express');
 var graphqlHTTP = require('express-graphql');
 var { buildSchema } = require('graphql');
 // const fetch = require('node-fetch');
+var cors = require('cors') 
 const { Client } = require('pg');
 
 let client;
@@ -14,33 +15,33 @@ try {
     client.connect();
 
     var schema = buildSchema(`
-type Query {
-    hello: String
-    aboutme:About
-    todos:[Todo]
-    todoWithID(id:Int):Todo
-  }
-type About {
-    id:ID
-    name:String
-    phone:String
-    hobby:String
-}
-type Mutation {
-    table(num: Int): [Int]
-    sum(a:Int,b:Int):Int
-    insertTodo(userId:Int,title:String,completed:Boolean):Todo
-    updateTodo(id:Int!,title:String,completed:Boolean):Todo
-
-  }
-  
-  type Todo{
-    userid: Int
-    id: Int
-    title: String
-    completed: Boolean
-  }
-`);
+    type Query {
+        hello: String
+        aboutme:About
+        todos:[Todo]
+        todoWithID(id:Int):Todo
+    }
+    type About {
+        id:ID
+        name:String
+        phone:String
+        hobby:String
+    }
+    type Mutation {
+        table(num: Int): [Int]
+        sum(a:Int,b:Int):Int
+        insertTodo(userId:Int,title:String,completed:Boolean):Todo
+        updateTodo(id:Int!,title:String,completed:Boolean):Todo
+        
+    }
+    
+    type Todo{
+        userid: Int
+        id: Int
+        title: String
+        completed: Boolean
+    }
+    `);
 
     var root = {
         hello: () => 'Hello world!',
@@ -125,6 +126,7 @@ type Mutation {
     // client.end();
 }
 var app = express();
+app.use(cors())
 app.get('/', function (req, res) {
     res.send('hello world')
 })
