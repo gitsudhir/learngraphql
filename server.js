@@ -17,8 +17,9 @@ type About {
 type Mutation {
     table(num: Int): [Int]
     sum(a:Int,b:Int):Int
+    insertTodo(userId:Int,title:String,completed:Boolean):Todo
   }
-
+  
   type Todo{
     userId: Int
     id: Int
@@ -43,7 +44,28 @@ var root = {
         let res = await fetch(`https://jsonplaceholder.typicode.com/todos`)
         let data = await res.json()
         return data;
+    },
+    insertTodo: async ({ userId, title, completed }) => {
+        const url = `https://jsonplaceholder.typicode.com/todos`;
+        const data = { userId, title, completed };
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST', // or 'PUT'
+                body: JSON.stringify(data), // data can be `string` or {object}!
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const json = await response.json();
+            return json;
+            // console.log('Success:', JSON.stringify(json));
+        } catch (error) {
+            return { error };
+            // console.error('Error:', error);
+        }
     }
+
 };
 
 var app = express();
