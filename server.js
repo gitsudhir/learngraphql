@@ -1,26 +1,20 @@
 var express = require('express');
 var graphqlHTTP = require('express-graphql');
 var { buildSchema } = require('graphql');
-const fetch = require('node-fetch');
+// const fetch = require('node-fetch');
 const { Client } = require('pg');
 
 let client;
 try {
-
-
     const connectionString = 'postgres://ufvzmttqiuribp:1f60d2a724b59b395f36d2256a553bd8a4fc0a0e7dcea47470b111c4582035fb@ec2-54-197-238-238.compute-1.amazonaws.com:5432/dbigvql5i88eu3';
     client = new Client({
         connectionString: process.env.DATABASE_URL || connectionString,
-        ssl: true,
-
+        ssl: true, // ssl is compulsory
     });
     client.connect();
 
-
-
-
     var schema = buildSchema(`
-  type Query {
+type Query {
     hello: String
     aboutme:About
     todos:[Todo]
@@ -40,7 +34,7 @@ type Mutation {
   }
   
   type Todo{
-    userId: Int
+    userid: Int
     id: Int
     title: String
     completed: Boolean
@@ -60,22 +54,19 @@ type Mutation {
         },
         sum: (({ a, b }) => a + b),
         todos: async () => {
-            const allTodoData = `
-           SELECT * FROM todolist `;
-            client.query(allTodoData)
-                .then((res) => {
-                    console.log(res.rows);
-                    client.end();
-                    return res.rows;
-                })
-                .catch((err) => {
-                    console.log('SELECT:', err);
-                    client.end();
-                });
-
+            try {
+                const allTodoData = `SELECT * FROM todolist `;
+                let res = await client.query(allTodoData)
+                console.log(res.rows);
+                // client.end();
+                return res.rows;
+            } catch (error) {
+                console.log('SELECT:', error);
+                // client.end();
+            }
         },
         insertTodo: async ({ userId, title, completed }) => {
-            // const data = { userId, title, completed };
+
             console.log('data:', JSON.stringify({ userId, title, completed }))
             const insertTodoData = `
             INSERT INTO todolist (userId, title, completed) VALUES
@@ -83,31 +74,28 @@ type Mutation {
             client.query(insertTodoData)
                 .then((res) => {
                     console.log(res);
-                    client.end();
+                    // client.end();
                     return { userId, title, completed }
                 })
                 .catch((err) => {
                     console.log('insert:', err);
-                    client.end();
+                    // client.end();
                 });
         },
-        todoWithID: function ({ id = 1 }) {
-            console.log('id :>>>', id);
-
-            const allTodoData = `
-            SELECT * FROM todolist WHERE id=${id}`;
-            console.log('query is :>>>', allTodoData);
-            client.query(allTodoData)
-                .then((res) => {
-                    console.log(typeof res.rows[0]);
-                    client.end();
-                    // return res.rows[0];
-                    return { id: 1, title: 'tum hi aana', userid: 1, completed: true }
-                })
-                .catch((err) => {
-                    console.log('SELECT:', err);
-                    client.end();
-                });
+        todoWithID: async function ({ id = 1 }) {
+            try {
+                console.log('id :>>>', id);
+                const allTodoData = `SELECT * FROM todolist WHERE id=${id};`;
+                console.log('query is :>>>' + allTodoData);
+                let res = await client.query(allTodoData)
+                console.log(res.rows[0]);
+                // await client.end(); 
+                // return { id: 1, title: 'tum hi aana', userid: 1, completed: true }
+                return res.rows[0];
+            } catch (error) {
+                console.log('id:', error);
+                // client.end();
+            }
         },
 
     };
@@ -129,7 +117,7 @@ app.get('/allTable', function (req, response) {
             response.send(JSON.stringify(row))
         }
         response.end();
-        client.end();
+        // client.end();
     });
 })
 app.get('/create', function (req, response) {
@@ -144,18 +132,13 @@ app.get('/create', function (req, response) {
         .then((res) => {
             console.log(res);
             response.send(res);
-            client.end();
+            // client.end();
         })
         .catch((err) => {
             console.log('guery:', err);
             response.send(err)
-            client.end();
+            // client.end();
         });
-
-
-
-
-    // res.send('hello world')
 })
 app.use('/graphql', graphqlHTTP({
     schema: schema,
