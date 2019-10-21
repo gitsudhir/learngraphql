@@ -16,6 +16,7 @@ type About {
 }
 type Mutation {
     table(num: Int): [Int]
+    sum(a:Int,b:Int):Int
   }
 `);
 
@@ -29,7 +30,8 @@ var root = {
 
     table: function ({ num }) {
         return [...new Array(10)].map((_, i) => (i + 1) * num);
-    }
+    },
+    sum: (({ a, b }) => a + b),
 
 };
 
