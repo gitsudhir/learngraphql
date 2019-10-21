@@ -6,7 +6,7 @@ var schema = buildSchema(`
   type Query {
     hello: String
     aboutme:About
-    table:[Int]
+   
   }
 type About {
     id:ID
@@ -14,7 +14,9 @@ type About {
     phone:String
     hobby:String
 }
-
+type Mutation {
+    table(num: Int): [Int]
+  }
 `);
 
 var root = {
@@ -24,7 +26,10 @@ var root = {
         phone: () => "7654627171",
         hobby: () => "learning",
     },
-    table: () => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+
+    table: function ({ num }) {
+        return [...new Array(10)].map((_, i) => (i + 1) * num);
+    }
 
 };
 
