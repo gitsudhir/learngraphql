@@ -30,6 +30,7 @@ type Mutation {
     table(num: Int): [Int]
     sum(a:Int,b:Int):Int
     insertTodo(userId:Int,title:String,completed:Boolean):Todo
+    updateTodo(id:Int!,title:String,completed:Boolean):Todo
 
   }
   
@@ -66,7 +67,6 @@ type Mutation {
             }
         },
         insertTodo: async ({ userId, title, completed }) => {
-
             console.log('data:', JSON.stringify({ userId, title, completed }))
             const insertTodoData = `
             INSERT INTO todolist (userId, title, completed) VALUES
@@ -92,6 +92,26 @@ type Mutation {
                 // await client.end(); 
                 // return { id: 1, title: 'tum hi aana', userid: 1, completed: true }
                 return res.rows[0];
+            } catch (error) {
+                console.log('id:', error);
+                // client.end();
+            }
+        },
+        updateTodo: async function ({ id = 1, title, completed }) {
+            try {
+                console.log('id :>>>', id);
+                const updateTodoData = `
+                UPDATE todolist
+                SET title = '${title}', completed = ${completed}
+                WHERE id=${id};
+                `;
+                console.log('query is :>>>' + updateTodoData);
+                let res = await client.query(updateTodoData)
+                console.log(res.rows[0]);
+                console.log(res.rows);
+                let v = await client.query(`SELECT * FROM todolist WHERE id=${id};`)
+                // console.log('v', v);
+                return v.rows[0]
             } catch (error) {
                 console.log('id:', error);
                 // client.end();
