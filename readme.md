@@ -98,3 +98,26 @@ query q($id: Int) {
   }
 }
 ```
+****
+## using fetch api
+```javascript
+const query = `
+  query {
+    todos {
+           id
+           title
+          }
+      }
+`;
+const url = "https://learngraphqls.herokuapp.com/graphql";
+const opts = {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ query })
+};
+fetch(url, opts)
+  .then(res => res.json())
+  .then(console.log)
+  .catch(console.error);
+
+```
